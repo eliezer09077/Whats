@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "753067073604",
+    "firebase_url": "https://watsapp-586ca.firebaseio.com",
+    "project_id": "watsapp-586ca",
+    "storage_bucket": "watsapp-586ca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753067073604:android:61cabb0d2e7782bd999c11",
+        "android_client_info": {
+          "package_name": "com.example.whats_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753067073604-414katm7fedfvv433f3eric1123qis2b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlYU_qfu0EOg2Fh5LbvVlIZNyn-sKht_c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753067073604-414katm7fedfvv433f3eric1123qis2b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
