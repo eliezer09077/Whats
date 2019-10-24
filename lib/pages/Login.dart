@@ -101,7 +101,7 @@ class _LoginState extends State<Login> {
                               final snackbar = SnackBar(
                                   //backgroundColor: Colors.green,
                                   duration: Duration(seconds: 10),
-                                  content: Text(
+                                  content: Text( 
                                       "Falha ao realizar login, tente novamente em isntantes!"));
                               Scaffold.of(context).showSnackBar(snackbar);
                             });
