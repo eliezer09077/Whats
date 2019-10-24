@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:whats_app/pages/Cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'RecuperarSenha.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -14,27 +16,40 @@ class _LoginState extends State<Login> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
   String _msgError = "";
-  bool _focusEmail = true;
-  bool _focusSenha = false;
 
   void _falhaLogin(PlatformException erro, BuildContext context) {
     setState(() {
       _msgError = "Falha ao realizar login, tente novamente em isntantes!";
     });
-    if (erro.code == "ERROR_WEAK_PASSWORD") {
-      setState(() {
-        _msgError = "Senha invalida!";
-      });
-    } else if (erro.code == "ERROR_USER_NOT_FOUND") {
-      setState(() {
-        _msgError = "E-mail não localizado, revise o mesmo!";
-      });
+
+    switch (erro.code) {
+      case "ERROR_WEAK_PASSWORD":
+        setState(() {
+          _msgError = "Senha invalida!";
+        });
+        break;
+      case "ERROR_USER_NOT_FOUND":
+        setState(() {
+          _msgError = "E-mail não localizado, revise o mesmo!";
+        });
+        break;
+      case "ERROR_WRONG_PASSWORD":
+        setState(() {
+          _msgError = "Senha incorreta!";
+        });
+        break;
+      default:
     }
     final snackbar = SnackBar(
         //backgroundColor: Colors.green,
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 7),
         content: Text(_msgError));
     Scaffold.of(context).showSnackBar(snackbar);
+  }
+
+  void _limparCampos() {
+    _controllerEmail.text = "";
+    _controllerSenha.text = "";
   }
 
   @override
@@ -71,7 +86,7 @@ class _LoginState extends State<Login> {
                           return null;
                         },
                         controller: _controllerEmail,
-                        autofocus: _focusEmail,
+                        autofocus: true,
                         keyboardType: TextInputType.emailAddress,
                         style: TextStyle(fontSize: 20),
                         decoration: InputDecoration(
@@ -92,7 +107,6 @@ class _LoginState extends State<Login> {
                       },
                       controller: _controllerSenha,
                       obscureText: true,
-                      autofocus: _focusSenha,
                       keyboardType: TextInputType.text,
                       style: TextStyle(fontSize: 20),
                       decoration: InputDecoration(
@@ -144,6 +158,25 @@ class _LoginState extends State<Login> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Cadastro()));
+                            _limparCampos();
+                          },
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Center(
+                        child: GestureDetector(
+                          child: Text(
+                            "Esqueci minha senha!",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RecuperarSenha()));
+                            _limparCampos();
                           },
                         ),
                       ),

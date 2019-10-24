@@ -2,32 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 
-class Cadastro extends StatefulWidget {
+class RecuperarSenha extends StatefulWidget {
   @override
-  _CadastroState createState() => _CadastroState();
+  _RecuperarSenhaState createState() => _RecuperarSenhaState();
 }
 
-class _CadastroState extends State<Cadastro> {
+class _RecuperarSenhaState extends State<RecuperarSenha> {
   FirebaseAuth auth = FirebaseAuth.instance;
-  TextEditingController _nome = TextEditingController();
   TextEditingController _email = TextEditingController();
-  TextEditingController _senha = TextEditingController();
 
   String _msgError = "";
-  bool _focusEmail = true;
-  bool _focusSenha = false;
   final _formKey = GlobalKey<FormState>();
 
-  void _falhaCadastro(PlatformException erro, BuildContext context) {
+  void _falhaRecuperar(PlatformException erro, BuildContext context) {
     switch (erro.code) {
-      case "ERROR_WEAK_PASSWORD":
-        setState(() {
-          _msgError = "A senha deve conter 6 caracteres ou mais!";
-        });
-        break;
       case "ERROR_INVALID_EMAIL":
         setState(() {
           _msgError = "E-mail invalido!";
+        });
+        break;
+      case "ERROR_USER_NOT_FOUND":
+        setState(() {
+          _msgError = "E-mail não encontrado!";
         });
         break;
       default:
@@ -48,7 +44,7 @@ class _CadastroState extends State<Cadastro> {
         key: _formKey,
         child: Scaffold(
             appBar: AppBar(
-              title: Text("Cadastro"),
+              title: Text("Recuperar Senha"),
               actions: <Widget>[],
             ),
             body: Builder(
@@ -66,28 +62,6 @@ class _CadastroState extends State<Cadastro> {
                             "imagens/usuario.png",
                             width: 200,
                             height: 150,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Informe seu nome!';
-                              }
-                              return null;
-                            },
-                            controller: _nome,
-                            autofocus: true,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.fromLTRB(32, 16, 32, 16),
-                                hintText: "Nome",
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                filled: true,
-                                fillColor: Colors.white),
                           ),
                         ),
                         Padding(
@@ -113,31 +87,11 @@ class _CadastroState extends State<Cadastro> {
                                   filled: true,
                                   fillColor: Colors.white),
                             )),
-                        TextFormField(
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Informe uma Senha!';
-                            }
-                            return null;
-                          },
-                          controller: _senha,
-                          obscureText: true,
-                          autofocus: true,
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                              contentPadding:
-                                  EdgeInsets.fromLTRB(32, 16, 32, 16),
-                              hintText: "Senha",
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              filled: true,
-                              fillColor: Colors.white),
-                        ),
                         Padding(
                           padding: EdgeInsets.only(top: 16, bottom: 10),
                           child: RaisedButton(
                             child: Text(
-                              "Cadastrar",
+                              "Recuperar",
                               style:
                                   TextStyle(color: Colors.white, fontSize: 20),
                             ),
@@ -148,15 +102,12 @@ class _CadastroState extends State<Cadastro> {
                             onPressed: () {
                               if (_formKey.currentState.validate()) {
                                 auth
-                                    .createUserWithEmailAndPassword(
-                                        email: _email.text,
-                                        password: _senha.text)
+                                    .sendPasswordResetEmail(email: _email.text)
                                     .then((user) {
                                   //Caso der certo
                                   print("OK");
-                                  print(user.toString());
                                 }).catchError((erro) {
-                                  _falhaCadastro(erro, context);
+                                  _falhaRecuperar(erro, context);
                                 });
                               }
                             },
