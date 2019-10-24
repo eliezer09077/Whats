@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:whats_app/pages/Cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,13 +13,37 @@ class _LoginState extends State<Login> {
   FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
+  String _msgError = "";
+  bool _focusEmail = true;
+  bool _focusSenha = false;
+
+  void _falhaLogin(PlatformException erro, BuildContext context) {
+    setState(() {
+      _msgError = "Falha ao realizar login, tente novamente em isntantes!";
+    });
+    if (erro.code == "ERROR_WEAK_PASSWORD") {
+      setState(() {
+        _msgError = "Senha invalida!";
+      });
+    } else if (erro.code == "ERROR_USER_NOT_FOUND") {
+      setState(() {
+        _msgError = "E-mail não localizado, revise o mesmo!";
+      });
+    }
+    final snackbar = SnackBar(
+        //backgroundColor: Colors.green,
+        duration: Duration(seconds: 10),
+        content: Text(_msgError));
+    Scaffold.of(context).showSnackBar(snackbar);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
         key: _formKey,
         child: Scaffold(
-          body: Container(
+            body: Builder(
+          builder: (context) => Container(
             decoration: BoxDecoration(color: Color(0xff075E54)),
             padding: EdgeInsets.all(16),
             child: Center(
@@ -46,7 +71,7 @@ class _LoginState extends State<Login> {
                           return null;
                         },
                         controller: _controllerEmail,
-                        autofocus: true,
+                        autofocus: _focusEmail,
                         keyboardType: TextInputType.emailAddress,
                         style: TextStyle(fontSize: 20),
                         decoration: InputDecoration(
@@ -67,6 +92,7 @@ class _LoginState extends State<Login> {
                       },
                       controller: _controllerSenha,
                       obscureText: true,
+                      autofocus: _focusSenha,
                       keyboardType: TextInputType.text,
                       style: TextStyle(fontSize: 20),
                       decoration: InputDecoration(
@@ -91,19 +117,15 @@ class _LoginState extends State<Login> {
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
                             auth
-                                .createUserWithEmailAndPassword(
+                                .signInWithEmailAndPassword(
                                     email: _controllerEmail.text,
                                     password: _controllerSenha.text)
                                 .then((user) {
                               //Caso der certo
+                              print("OK");
                               print(user.toString());
                             }).catchError((erro) {
-                              final snackbar = SnackBar(
-                                  //backgroundColor: Colors.green,
-                                  duration: Duration(seconds: 10),
-                                  content: Text( 
-                                      "Falha ao realizar login, tente novamente em isntantes!"));
-                              Scaffold.of(context).showSnackBar(snackbar);
+                              _falhaLogin(erro, context);
                             });
                           }
                         },
@@ -131,6 +153,6 @@ class _LoginState extends State<Login> {
               ),
             ),
           ),
-        ));
+        )));
   }
 }

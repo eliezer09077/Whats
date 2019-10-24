@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 class Cadastro extends StatefulWidget {
   @override
@@ -7,11 +8,31 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
+  FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController _nome = TextEditingController();
   TextEditingController _email = TextEditingController();
   TextEditingController _senha = TextEditingController();
 
+  String _msgError = "";
+  bool _focusEmail = true;
+  bool _focusSenha = false;
   final _formKey = GlobalKey<FormState>();
+
+  void _falhaCadastro(PlatformException erro, BuildContext context) {
+    setState(() {
+      _msgError = "Falha ao realizar login, tente novamente em isntantes!";
+    });
+    if (erro.code == "ERROR_WEAK_PASSWORD") {
+      setState(() {
+        _msgError = "Senha invalida!";
+      });
+    }
+    final snackbar = SnackBar(
+        //backgroundColor: Colors.green,
+        duration: Duration(seconds: 10),
+        content: Text(_msgError));
+    Scaffold.of(context).showSnackBar(snackbar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +134,18 @@ class _CadastroState extends State<Cadastro> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         onPressed: () {
-                          if (_formKey.currentState.validate()) {}
+                          if (_formKey.currentState.validate()) {
+                            auth
+                                .createUserWithEmailAndPassword(
+                                    email: _email.text, password: _senha.text)
+                                .then((user) {
+                              //Caso der certo
+                              print("OK");
+                              print(user.toString());
+                            }).catchError((erro) {
+                              _falhaCadastro(erro, context);
+                            });
+                          }
                         },
                       ),
                     )
