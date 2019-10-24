@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whats_app/pages/Cadastro.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -8,6 +9,10 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
+  FirebaseAuth auth = FirebaseAuth.instance;
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -35,11 +40,12 @@ class _LoginState extends State<Login> {
                         validator: (value) {
                           if (value.isEmpty) {
                             return 'Informe um E-mail!';
-                          }else if(!value.contains("@")){
+                          } else if (!value.contains("@")) {
                             return 'Informe um E-mail valido!';
                           }
                           return null;
                         },
+                        controller: _controllerEmail,
                         autofocus: true,
                         keyboardType: TextInputType.emailAddress,
                         style: TextStyle(fontSize: 20),
@@ -59,6 +65,7 @@ class _LoginState extends State<Login> {
                         }
                         return null;
                       },
+                      controller: _controllerSenha,
                       obscureText: true,
                       keyboardType: TextInputType.text,
                       style: TextStyle(fontSize: 20),
@@ -82,7 +89,23 @@ class _LoginState extends State<Login> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32)),
                         onPressed: () {
-                          if (_formKey.currentState.validate()) {}
+                          if (_formKey.currentState.validate()) {
+                            auth
+                                .createUserWithEmailAndPassword(
+                                    email: _controllerEmail.text,
+                                    password: _controllerSenha.text)
+                                .then((user) {
+                              //Caso der certo
+                              print(user.toString());
+                            }).catchError((erro) {
+                              final snackbar = SnackBar(
+                                  //backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 10),
+                                  content: Text(
+                                      "Falha ao realizar login, tente novamente em isntantes!"));
+                              Scaffold.of(context).showSnackBar(snackbar);
+                            });
+                          }
                         },
                       ),
                     ),
